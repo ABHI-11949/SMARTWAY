@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Student Portal</title>
+  <title>Teacher Dashboard</title>
+  <style>
+    body { font-family: Arial; }
+    .status { font-size: 24px; margin-top: 20px; }
+    .green { color: green; }
+    .yellow { color: orange; }
+    .red { color: red; }
+  </style>
 </head>
 <body>
-  <h2>Student Camera Running...</h2>
-  <p>Do not close this window</p>
 
-  <script>
-    const ws = new WebSocket("ws://localhost:8000/ws");
+<h1>Live Student Status</h1>
+<div id="status" class="status">Waiting...</div>
 
-    ws.onopen = () => {
-      console.log("Connected to backend WebSocket");
-    };
+<script>
+  const ws = new WebSocket("ws://localhost:8000/ws");
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("Status sent to teacher:", data.status);
-    };
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    const statusDiv = document.getElementById("status");
 
-    // Optional: dummy send every 2 seconds
-    setInterval(() => {
-      ws.send(JSON.stringify({status: "FOCUSED"}));
-    }, 2000);
-  </script>
+    if (data.status === "FOCUSED") {
+      statusDiv.innerHTML = "Student is Focused";
+      statusDiv.className = "status green";
+    }
+    else if (data.status === "CONFUSED") {
+      statusDiv.innerHTML = "Student is Confused";
+      statusDiv.className = "status yellow";
+    }
+    else {
+      statusDiv.innerHTML = "Proctor Alert";
+      statusDiv.className = "status red";
+    }
+  };
+</script>
+
 </body>
 </html>
